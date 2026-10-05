@@ -1,0 +1,27 @@
+{
+  "name": "mp3-to-wav-browser",
+  "version": "1.0.0",
+  "description": "Convert MP3 to WAV entirely in the browser with the Web Audio API. No server, no upload, no dependencies.",
+  "type": "module",
+  "main": "src/index.js",
+  "types": "src/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./src/index.d.ts",
+      "default": "./src/index.js"
+    }
+  },
+  "files": ["src"],
+  "scripts": {
+    "test": "node --test"
+  },
+  "keywords": ["mp3", "wav", "audio", "converter", "web-audio", "browser", "client-side", "pcm", "encoder"],
+  "homepage": "https://mp3-to-wav-browser.vercel.app/",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mp3towav/mp3-to-wav-browser.git"
+  },
+  "bugs": "https://github.com/mp3towav/mp3-to-wav-browser/issues",
+  "author": "MP3 to WAV Convert (https://mp3towavconvert.com)",
+  "license": "MIT"
+}

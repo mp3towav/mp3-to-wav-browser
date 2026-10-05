@@ -1,0 +1,156 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>mp3-to-wav-browser: convert MP3 to WAV client-side in JavaScript</title>
+  <meta name="description" content="A tiny, dependency-free JavaScript library that converts MP3 to WAV entirely in the browser with the Web Audio API. No server, no upload. Live demo and docs." />
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%23c2410c'/%3E%3Cpath d='M6 16h1.4M11 11v10M15 7v18M19 12v8M23 9v14M28 16h-1.4' stroke='%23fff' stroke-width='2.4' stroke-linecap='round'/%3E%3C/svg%3E" />
+  <style>
+    :root { --bg:#faf9f6; --surface:#fff; --s2:#f3f1ec; --text:#1b1c20; --muted:#565a66; --border:#e3e0d8; --accent:#c2410c; --accent-2:#9a3412; --soft:#fff1e8; --code:#1e1f24; --code-text:#e6e6ea; color-scheme: light; }
+    @media (prefers-color-scheme: dark) { :root { --bg:#111215; --surface:#1a1c21; --s2:#22252b; --text:#ececef; --muted:#a3a7b3; --border:#2e3139; --accent:#fb923c; --accent-2:#fdba74; --soft:#2a1d14; --code:#0b0c0f; color-scheme: dark; } }
+    *, *::before, *::after { box-sizing: border-box; }
+    body { margin: 0; background: var(--bg); color: var(--text); font: 17px/1.6 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+    a { color: var(--accent-2); text-underline-offset: 3px; }
+    @media (prefers-color-scheme: dark) { a { color: var(--accent); } }
+    .wrap { max-width: 860px; margin: 0 auto; padding: 0 16px; }
+    header { padding: 48px 0 8px; }
+    .tag { display: inline-block; font: 600 13px/1 ui-monospace, Menlo, Consolas, monospace; background: var(--soft); color: var(--accent-2); padding: 6px 10px; border-radius: 999px; }
+    h1 { font-size: clamp(1.9rem, 1.4rem + 2.4vw, 2.8rem); line-height: 1.15; letter-spacing: -0.02em; margin: 14px 0 10px; }
+    .lead { color: var(--muted); font-size: 1.1rem; margin: 0 0 8px; }
+    h2 { font-size: 1.35rem; margin: 40px 0 12px; }
+    .card { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 20px; }
+    .drop { display: grid; place-items: center; align-content: center; gap: 8px; text-align: center; min-height: 180px; padding: 20px; border: 2px dashed var(--border); border-radius: 12px; background: var(--s2); cursor: pointer; }
+    .drop:hover, .drop.over { border-color: var(--accent); background: var(--soft); }
+    .drop:focus-within { outline: 3px solid #2563eb; outline-offset: 2px; }
+    .drop strong { font-size: 1.15rem; }
+    .btn { display: inline-flex; align-items: center; min-height: 44px; padding: 10px 18px; border-radius: 10px; border: 0; background: var(--accent); color: #fff; font: 600 0.95rem/1 inherit; text-decoration: none; cursor: pointer; }
+    @media (prefers-color-scheme: dark) { .btn { color: #1a1c21; } }
+    .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+    .opts { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-top: 16px; }
+    .opts label { display: grid; gap: 4px; font-size: 0.9rem; font-weight: 600; }
+    select { font: inherit; font-size: 16px; min-height: 44px; padding: 8px 10px; border-radius: 8px; border: 1px solid var(--border); background: var(--surface); color: var(--text); }
+    ul.files { list-style: none; padding: 0; margin: 16px 0 0; display: grid; gap: 10px; }
+    ul.files li { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 12px 14px; border: 1px solid var(--border); border-radius: 12px; }
+    .name { font-weight: 600; overflow-wrap: anywhere; }
+    .meta { color: var(--muted); font-size: 0.9rem; }
+    .err { color: #dc2626; }
+    pre { background: var(--code); color: var(--code-text); padding: 16px 18px; border-radius: 12px; overflow-x: auto; font: 14px/1.6 ui-monospace, Menlo, Consolas, monospace; }
+    code { font-family: ui-monospace, Menlo, Consolas, monospace; font-size: 0.92em; }
+    p code, li code { background: var(--s2); padding: 0.1em 0.35em; border-radius: 5px; }
+    .grid3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+    .grid3 .card h3 { margin: 0 0 4px; font-size: 1.02rem; }
+    .grid3 .card p { margin: 0; color: var(--muted); font-size: 0.95rem; }
+    .credit { margin: 40px 0; padding: 20px; border-radius: 16px; background: var(--soft); }
+    .credit p { margin: 0; }
+    footer { border-top: 1px solid var(--border); padding: 20px 0 32px; color: var(--muted); font-size: 0.92rem; }
+    @media (max-width: 640px) { .opts, .grid3 { grid-template-columns: 1fr; } ul.files li { flex-direction: column; align-items: stretch; } }
+  </style>
+</head>
+<body>
+  <header class="wrap">
+    <span class="tag">MIT · 0 dependencies · ~2 KB gzipped</span>
+    <h1>mp3-to-wav-browser</h1>
+    <p class="lead">Convert MP3 to WAV <strong>entirely in the browser</strong> with the Web Audio API. No server, no upload, no dependencies. Keeps the original sample rate and writes 16-bit, 24-bit or 32-bit float WAV.</p>
+  </header>
+
+  <main class="wrap">
+    <h2>Try it</h2>
+    <section class="card" aria-label="Live demo">
+      <label class="drop" id="drop">
+        <input class="sr" id="file" type="file" accept=".mp3,audio/*" multiple />
+        <strong>Drop MP3 files here or click to choose</strong>
+        <span class="meta">Converted on your device. Nothing is uploaded.</span>
+      </label>
+      <div class="opts">
+        <label>Sample rate
+          <select id="rate"><option value="original">Same as source</option><option value="44100">44.1 kHz</option><option value="48000">48 kHz</option><option value="16000">16 kHz</option></select>
+        </label>
+        <label>Bit depth
+          <select id="depth"><option value="16">16-bit</option><option value="24">24-bit</option><option value="32">32-bit float</option></select>
+        </label>
+        <label>Channels
+          <select id="mono"><option value="false">Keep</option><option value="true">Mono</option></select>
+        </label>
+      </div>
+      <ul class="files" id="files" aria-live="polite"></ul>
+    </section>
+
+    <h2>Usage</h2>
+    <pre><code>import { mp3ToWav } from './src/index.js';
+
+const input = document.querySelector('input[type=file]');
+input.addEventListener('change', async () =&gt; {
+  const { blob, sampleRate, duration } = await mp3ToWav(input.files[0], {
+    sampleRate: 'original', // or 44100, 48000, 16000…
+    bitDepth: 16,           // 16 | 24 | 32 (float)
+    mono: false,
+  });
+  const link = document.createElement('a');
+  link.href = URL.createObjectURL(blob);
+  link.download = 'converted.wav';
+  link.click();
+});</code></pre>
+
+    <h2>How it works</h2>
+    <div class="grid3">
+      <div class="card"><h3>1. Detect the rate</h3><p>It reads the first MPEG frame header to find the MP3's real sample rate, skipping ID3 tags.</p></div>
+      <div class="card"><h3>2. Decode locally</h3><p><code>decodeAudioData</code> runs on an <code>OfflineAudioContext</code> created at that rate, so nothing gets resampled to 48 kHz by accident.</p></div>
+      <div class="card"><h3>3. Write the WAV</h3><p>A small RIFF/WAVE encoder writes PCM (16/24-bit) or IEEE float (32-bit) and returns a <code>Blob</code>.</p></div>
+    </div>
+
+    <section class="credit">
+      <p><strong>Need a ready-made app?</strong> This library powers <a href="https://mp3towavconvert.com/">MP3 to WAV Convert</a>, a free, private online converter with batch ZIP downloads, one-click presets and guides in four languages.</p>
+    </section>
+  </main>
+
+  <footer class="wrap">
+    <a href="https://github.com/mp3towav/mp3-to-wav-browser">Source on GitHub</a> · MIT License · Made by the team behind <a href="https://mp3towavconvert.com/">mp3towavconvert.com</a>
+  </footer>
+
+  <script type="module">
+    import { mp3ToWav } from './src/index.js';
+
+    const fileInput = document.getElementById('file');
+    const drop = document.getElementById('drop');
+    const list = document.getElementById('files');
+    const opt = (id) => document.getElementById(id).value;
+    const fmt = (b) => (b > 1e6 ? (b / 1e6).toFixed(1) + ' MB' : Math.round(b / 1e3) + ' KB');
+    const time = (s) => `${Math.floor(s / 60)}:${String(Math.round(s % 60)).padStart(2, '0')}`;
+
+    async function convert(file) {
+      const li = document.createElement('li');
+      const info = document.createElement('div');
+      const name = document.createElement('div');
+      const meta = document.createElement('div');
+      name.className = 'name'; meta.className = 'meta';
+      name.textContent = file.name; meta.textContent = 'Converting…';
+      info.append(name, meta); li.append(info); list.append(li);
+      try {
+        const rate = opt('rate');
+        const { blob, sampleRate, channels, duration } = await mp3ToWav(file, {
+          sampleRate: rate === 'original' ? 'original' : Number(rate),
+          bitDepth: Number(opt('depth')),
+          mono: opt('mono') === 'true',
+        });
+        meta.textContent = `${time(duration)} · ${sampleRate / 1000} kHz · ${opt('depth') === '32' ? '32-bit float' : opt('depth') + '-bit'} · ${channels === 1 ? 'mono' : 'stereo'} · ${fmt(blob.size)}`;
+        const a = document.createElement('a');
+        a.className = 'btn'; a.textContent = 'Download WAV';
+        a.href = URL.createObjectURL(blob);
+        a.download = file.name.replace(/\.[^.]+$/, '') + '.wav';
+        li.append(a);
+      } catch (e) {
+        meta.textContent = 'Could not decode this file.'; meta.className = 'meta err';
+      }
+    }
+
+    fileInput.addEventListener('change', async () => {
+      for (const f of fileInput.files) await convert(f);
+      fileInput.value = '';
+    });
+    ['dragenter', 'dragover'].forEach((t) => drop.addEventListener(t, (e) => { e.preventDefault(); drop.classList.add('over'); }));
+    ['dragleave', 'drop'].forEach((t) => drop.addEventListener(t, () => drop.classList.remove('over')));
+    drop.addEventListener('drop', async (e) => { e.preventDefault(); for (const f of e.dataTransfer.files) await convert(f); });
+  </script>
+</body>
+</html>
