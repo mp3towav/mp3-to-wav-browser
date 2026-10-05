@@ -13,7 +13,23 @@ No server, no upload, no dependencies, about 2 KB gzipped.
 
 ## Install
 
-Copy `src/index.js` (and `src/index.d.ts` for TypeScript types) into your project. It's a single ES module with no dependencies.
+```sh
+npm install mp3-to-wav-browser
+```
+
+```js
+import { mp3ToWav } from 'mp3-to-wav-browser';
+```
+
+Or load it straight from a CDN, no build step needed:
+
+```html
+<script type="module">
+  import { mp3ToWav } from 'https://cdn.jsdelivr.net/npm/mp3-to-wav-browser/src/index.js';
+</script>
+```
+
+You can also copy `src/index.js` (and `src/index.d.ts` for TypeScript types) into your project. It's a single ES module with no dependencies.
 
 ## Usage
 
