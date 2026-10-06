@@ -85,7 +85,7 @@ export function encodeWav(channels, sampleRate, { bitDepth = 16, mono = false } 
     for (let c = 0; c < channelCount; c++) {
       const s = Math.max(-1, Math.min(1, sources[c][i]));
       if (bitDepth === 16) {
-        view.setInt16(offset, s < 0 ? s * 0x8000 : s * 0x7fff, true);
+        view.setInt16(offset, Math.round(s < 0 ? s * 0x8000 : s * 0x7fff), true);
       } else if (bitDepth === 24) {
         const v = Math.round(s < 0 ? s * 0x800000 : s * 0x7fffff);
         view.setUint8(offset, v & 0xff);

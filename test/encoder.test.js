@@ -39,6 +39,14 @@ test('samples are written, interleaved and clamped', () => {
   assert.equal(v.getInt16(6, true), -16384);  // R1 = -0.5
 });
 
+test('16-bit samples are rounded, not truncated', () => {
+  const buf = encodeWav([new Float32Array([0.5, 0.25001, -0.25001])], 8000);
+  const v = new DataView(buf, 44);
+  assert.equal(v.getInt16(0, true), 16384);  // 0.5 * 32767 = 16383.5 rounds up
+  assert.equal(v.getInt16(2, true), 8192);   // 0.25001 * 32767 = 8192.08
+  assert.equal(v.getInt16(4, true), -8192);  // -0.25001 * 32768 = -8192.33
+});
+
 test('24-bit and 32-bit float formats', () => {
   const ch = [new Float32Array([0.25])];
   const h24 = header(encodeWav(ch, 48000, { bitDepth: 24 }));

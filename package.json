@@ -1,6 +1,6 @@
 {
   "name": "mp3-to-wav-browser",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Convert MP3 to WAV entirely in the browser with the Web Audio API. No server, no upload, no dependencies.",
   "type": "module",
   "main": "src/index.js",
